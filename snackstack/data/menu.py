@@ -1,0 +1,87 @@
+
+from __future__ import annotations
+
+from typing import List
+
+menu_data: List[dict] = [
+    {
+        "id": "FOOD001",
+        "name": "Pasta",
+        "category": "Italian",
+        "price": 500,
+        "rating": 4.4,
+        "description": "Classic white sauce pasta with herbs and mushroom",
+        "in_stock": True,
+        "spice_level": 1
+    },
+    {
+        "id": "FOOD002",
+        "name": "Margherita Pizza",
+        "category": "Italian",
+        "price": 650,
+        "rating": 4.6,
+        "description": "Fresh mozzarella, basil, and tomato sauce pizza",
+        "in_stock": True,
+        "spice_level": 0
+    },
+    {
+        "id": "FOOD003",
+        "name": "Butter Chicken",
+        "category": "Indian",
+        "price": 550,
+        "rating": 4.8,
+        "description": "Creamy tomato-based chicken curry",
+        "in_stock": True,
+        "spice_level": 2
+    },
+    {
+        "id": "FOOD004",
+        "name": "Paneer Tikka",
+        "category": "Indian",
+        "price": 450,
+        "rating": 4.5,
+        "description": "Grilled cottage cheese cubes with spices",
+        "in_stock": False,
+        "spice_level": 2
+    },
+    {
+        "id": "FOOD005",
+        "name": "Veg Hakka Noodles",
+        "category": "Chinese",
+        "price": 400,
+        "rating": 4.2,
+        "description": "Stir-fried noodles with fresh vegetables",
+        "in_stock": True,
+        "spice_level": 1
+    },
+    {
+        "id": "FOOD006",
+        "name": "Chicken Manchurian",
+        "category": "Chinese",
+        "price": 520,
+        "rating": 4.3,
+        "description": "Chicken balls tossed in spicy Manchurian sauce",
+        "in_stock": True,
+        "spice_level": 3
+    },
+    {
+        "id": "FOOD007",
+        "name": "Veg Burger",
+        "category": "American",
+        "price": 250,
+        "rating": 4.1,
+        "description": "Crispy vegetable patty with fresh lettuce",
+        "in_stock": True,
+        "spice_level": 1
+    },
+    {
+        "id": "FOOD008",
+        "name": "Chocolate Brownie",
+        "category": "Dessert",
+        "price": 220,
+        "rating": 4.7,
+        "description": "Rich chocolate brownie served warm",
+        "in_stock": True,
+        "spice_level": 0
+    }
+]
