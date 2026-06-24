@@ -49,6 +49,7 @@ snackstack/
 |   |-- config.py         # LLM, embeddings, OpenAI client setup
 |   |-- state.py          # Shared StackState (TypedDict)
 |   |-- graph.py          # StateGraph builder & compiler
+|   |-- subgraph.py       # MenuSubGraphState and OrderSubGraphState
 |   |-- logger.py         # Centralized logging
 |   |
 |   |-- agents/
@@ -56,7 +57,9 @@ snackstack/
 |   |   |-- prompts.py    # System prompts for all nodes
 |   |   |-- orchestrator.py
 |   |   |-- menu_agent.py
+|   |   |-- menu_subagent.py
 |   |   |-- order_agent.py
+|   |   |-- order_subagent.py
 |   |   |-- synthesizer.py  # Optional: merges parallel responses
 |   |
 |   |-- data/
@@ -66,7 +69,6 @@ snackstack/
 |   |
 |   |-- tools/
 |   |   |-- __init__.py
-|   |   |-- rag.py        # ChromaDB vector store
 |   |   |-- menu_tools.py # search_menu_catalog
 |   |   |-- order_tools.py# get_order_status
 |   |
