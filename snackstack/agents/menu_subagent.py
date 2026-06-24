@@ -2,7 +2,7 @@
 from typing import Literal
 from langgraph.graph import END
 from langgraph.types import Command
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
 
 from snackstack.state import MenuSubGraphState
 from snackstack.agents.prompts import menu_prompt_template
@@ -29,10 +29,21 @@ def menu_model(state: MenuSubGraphState) -> Command[Literal["menu_tools", "__end
 
     response = menu_llm.invoke(messages)
 
-    
+    # has_tool_result = any(
+    #     isinstance(msg, ToolMessage)
+    #     for msg in state.get("messages", [])
+    # )
 
     if getattr(response, "tool_calls", None):
+        # if has_tool_result:
+        #     logger.warning("Menu tool already called once. Ending to avoid loop.")
+        #     return Command(
+        #         update={"messages": [response]},
+        #         goto=END,
+        #     )
+
         logger.debug("menu_tool call initiated")
         return Command(update={"messages": [response]}, goto="menu_tools")
+
 
     return Command(update={"messages": [response]}, goto=END)

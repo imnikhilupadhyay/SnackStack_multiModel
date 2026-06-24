@@ -37,7 +37,7 @@ def orchestrator(state: StackState) -> Command[Literal["menu_agent", "order_agen
 
     for task in manager_response.tasks:
         targets.append(Send(task.agent, {
-            "messages": state["messages"],
+            "messages": [],
             "user_query": user_query,
             "task_description": task.task_description
         }))
@@ -56,7 +56,7 @@ def orchestrator(state: StackState) -> Command[Literal["menu_agent", "order_agen
 
     return Command(
         update={
-            "tasks": manager_response.tasks,
+            "tasks": [task.model_dump() for task in manager_response.tasks],
             "requires_synthesis": manager_response.requires_synthesis,
             "user_query": user_query
         },
