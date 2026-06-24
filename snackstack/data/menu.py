@@ -2,6 +2,12 @@
 from __future__ import annotations
 
 from typing import List
+from snackstack.config import langchain_embedding
+from langchain_chroma import Chroma
+from langchain_core.documents import Document
+from snackstack.logger import setup_logger
+
+logger = setup_logger("vectore_store")
 
 menu_data: List[dict] = [
     {
@@ -85,3 +91,73 @@ menu_data: List[dict] = [
         "spice_level": 0
     }
 ]
+
+PERSIST_DIR = "./rag_vectorstore"
+COLLECTION_NAME = "menu_table"
+
+def ingest_menu_data(data: List[dict]= menu_data) -> Chroma:
+
+    try:
+        vector_store = Chroma(
+            collection_name=COLLECTION_NAME,
+            embedding_function=langchain_embedding,
+            persist_directory=PERSIST_DIR,
+        )
+
+        if vector_store._collection.count() > 0:
+            logger.debug("Loaded vectore store")
+            return vector_store
+
+    except Exception:
+        pass
+
+    documents = []
+
+    for doc in data:
+        food_item = f"""
+            name: {doc["name"]}
+            category: {doc["category"]}
+            price: {doc["price"]}
+            rating: {doc["rating"]}
+            description: {doc["description"]}
+            spice_level: {doc["spice_level"]}
+        """.strip()
+
+        metadata = {
+            "id": doc["id"],
+            "name": doc["name"],
+            "category": doc["category"],
+            "price": doc["price"],
+            "rating": doc["rating"],
+            "description": doc["description"],
+            "in_stock": doc["in_stock"],
+            "spice_level": doc["spice_level"]
+        }
+
+        document = Document(page_content=food_item, metadata=metadata)
+        documents.append(document)
+
+
+    vector_store = Chroma.from_documents(
+        documents=documents,
+        embedding=langchain_embedding,
+        collection_name=COLLECTION_NAME,
+        persist_directory=PERSIST_DIR,
+        collection_metadata={"hnsw:space": "cosine"}
+    )
+
+    
+    logger.debug("Created vectore store")
+    return vector_store
+
+
+# if __name__ == "__main__":
+#     vector_store = ingest_menu_data()
+
+#     logger.info(
+#         "Vector DB loaded. collection=%s count=%s",
+#         COLLECTION_NAME,
+#         vector_store._collection.count()
+#     )
+
+        

@@ -10,5 +10,8 @@ wheels/
 .venv
 .env
 
+#db
+rag_vectorstore
+
 # Recordings
 *.mp3

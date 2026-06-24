@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Optional
 
 order_data: dict[str, dict] = {
     "ORD101": {
@@ -59,3 +59,7 @@ order_data: dict[str, dict] = {
         "order_time": "15:22:18"
     }
 }
+
+def get_order_by_id(order_id: str) -> Optional[dict]:
+    order_id = order_id.strip().upper()
+    return order_data.get(order_id)
