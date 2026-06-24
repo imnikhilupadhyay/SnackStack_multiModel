@@ -1,21 +1,50 @@
 
 from __future__ import annotations
 
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from snackstack.logger import setup_logger
-from snackstack.config import langchain_llm, langchain_embedding
+from typing import Literal
+from langgraph.types import Command, interrupt
+
 from snackstack.state import WorkerState
+from snackstack.subgraph import order_subgraph
+from snackstack.logger import setup_logger
 
 logger = setup_logger("order_agent")
 
-def order_agent(state: WorkerState):
+def order_agent(state: WorkerState, config) -> Command[Literal["synthesizer"]]:
     user_query = state["user_query"]
+    task_description = state.get("task_description", user_query)
 
-    menu_prompt_template = """
-     You are an assitant who has access to the restrurant food items information.
+    parent_thread_id = config["configurable"]["thread_id"]
 
-     You task is to provide the write match to the user query only based on the menu options you have.
+    logger.info("Invoking subgraph")
 
-     
-    """
+    subgraph_config = {
+        "configurable": {
+            "thread_id": f"{parent_thread_id}:order_subgraph"
+        }
+    }
+
+    result = order_subgraph.invoke({
+        "messages": [],
+        "user_query": user_query,
+        "task_description": task_description,
+    }, config=subgraph_config)
+
+    if "__interrupt__" in result and result["__interrupt__"]:
+        question = result["__interrupt__"][0].value
+
+        user_answer = interrupt(question)
+
+        result = order_subgraph.invoke(
+            Command(resume=user_answer),
+            config=subgraph_config,
+        )
+
+    final_answer = result["messages"][-1].content
+
+    logger.info(f"order_response: {final_answer[:120]}")
+
+    return Command(
+        update={"order_response": final_answer},
+        goto="synthesizer",
+    )

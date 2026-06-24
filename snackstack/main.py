@@ -7,6 +7,9 @@ from uuid import uuid4
 import sys
 from snackstack.voice.recorder import VoiceRecorder
 from snackstack.voice.speaker import VoiceSpeaker
+from snackstack.graph import main_graph
+from langchain_core.messages import HumanMessage, AIMessage
+from langgraph.types import Command
 
 logger = setup_logger("main")
 
@@ -29,11 +32,36 @@ class SnackStack:
         if input_fn is None:
             input_fn = lambda prompt: input(f"\nAgent ask: {prompt}\n You: ").strip()
 
-        config = {"configuration": {"thread_id": self.thread_id}}
+        config = {"configurable": {"thread_id": self.thread_id}}
 
         logger.info("query: %s", text)
 
-        return text
+        result = main_graph.invoke(
+            {
+                "messages": [HumanMessage(content=text)], "user_query": text
+            },
+            config=config
+        )
+
+        while "__interrupt__" in result and result["__interrupt__"]:
+            question = result["__interrupt__"][0].value
+            logger.info("HITL interrupt: %r", question)
+
+            if self.enable_voice and self.speaker and self.recorder:
+                self.speaker.speak(question)
+                _, user_answer = self.recorder.record_transcribe_and_save()
+                if not user_answer:
+                    user_answer = "I don't have that information"
+            else:
+                user_answer = input_fn(question)
+
+            logger.info("HITL resume: user_answer=%r", user_answer)
+            result = main_graph.invoke(Command(resume=user_answer), config=config)
+
+        answer = result.get("final_answer", "")
+        if not answer:
+            answer = "Sorry, I wasn't able to process that. Could you try rephrasing?"
+        return answer
     
     def text_loop(self) -> None:
         """Chat bot interaction loop"""

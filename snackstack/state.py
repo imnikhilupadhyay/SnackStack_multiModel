@@ -39,7 +39,7 @@ class StackState(TypedDict):
 
 class WorkerState(TypedDict):
     """Act as a input payload for the agents and their graphs"""
-    messages: Annotated[List[AnyMessage], operator.add]
+    messages: Annotated[List[AnyMessage], add_messages]
     user_query: str
     task_description: str
 

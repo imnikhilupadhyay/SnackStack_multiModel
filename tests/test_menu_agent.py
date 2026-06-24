@@ -4,13 +4,19 @@ from snackstack.agents.menu_agent import menu_subgraph, menu_agent
 
 
 def test_menu_subgraph(query: str):
+    config = {
+        "configurable": {
+            "thread_id": f"test-menu-subgraph-{abs(hash(query))}"
+        }
+    }
+
     state = {
         "messages": [],
         "user_query": query,
         "task_description": query,
     }
 
-    result = menu_subgraph.invoke(state)
+    result = menu_subgraph.invoke(state, config=config)
 
     print("\n" + "=" * 80)
     print("QUERY:", query)
@@ -31,7 +37,13 @@ def test_menu_agent_wrapper(query: str):
         "task_description": query,
     }
 
-    result = menu_agent(state)
+    config = {
+        "configurable": {
+            "thread_id": "test-main-thread-menu"
+        }
+    }
+
+    result = menu_agent(state, config)
 
     print("\n" + "=" * 80)
     print("MENU AGENT WRAPPER TEST")
@@ -50,3 +62,4 @@ if __name__ == "__main__":
     test_menu_subgraph("Hi, what can you do?")
 
     test_menu_agent_wrapper("Suggest spicy food under 500")
+    

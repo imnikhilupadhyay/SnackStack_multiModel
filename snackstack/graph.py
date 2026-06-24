@@ -1,19 +1,32 @@
 
 from __future__ import annotations
 
-from langgraph.graph import StateGraph, START
-from langgraph.prebuilt import ToolNode
+from langgraph.graph import StateGraph, START, END
 
-from snackstack.state import MenuSubGraphState
-from snackstack.agents.menu_subagent import menu_model
-from snackstack.tools.menu_tools import menu_tool
+from snackstack.state import StackState
+from snackstack.agents.orchestrator import orchestrator
+from snackstack.agents.menu_agent import menu_agent
+from snackstack.agents.order_agent import order_agent
+from snackstack.agents.synthesizer import synthesizer
+from snackstack.logger import setup_logger
+from langgraph.checkpoint.memory import MemorySaver
 
-def build_menu_subgraph():
-    builder = StateGraph(MenuSubGraphState)
-    builder.add_node("menu_model", menu_model)
-    builder.add_node("menu_tools", ToolNode([menu_tool]))
-    builder.add_edge(START, "menu_model")
-    builder.add_edge("menu_tools", "menu_model")
-    return builder.compile()
+logger = setup_logger("main graph")
 
-menu_subgraph = build_menu_subgraph()
+checkpointer = MemorySaver()
+
+def build_main_graph():
+    builder = StateGraph(StackState)
+    builder.add_node("orchestrator", orchestrator)
+    builder.add_node("menu_agent", menu_agent)
+    builder.add_node("order_agent", order_agent)
+    builder.add_node("synthesizer", synthesizer)
+
+    builder.add_edge(START, "orchestrator")
+    builder.add_edge("order_agent", "synthesizer")
+    builder.add_edge("menu_agent", "synthesizer")
+    builder.add_edge("synthesizer", END)
+
+    return builder.compile(checkpointer=checkpointer)
+
+main_graph = build_main_graph()
