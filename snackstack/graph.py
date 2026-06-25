@@ -23,8 +23,6 @@ def build_main_graph():
     builder.add_node("synthesizer", synthesizer)
 
     builder.add_edge(START, "orchestrator")
-    builder.add_edge("order_agent", "synthesizer")
-    builder.add_edge("menu_agent", "synthesizer")
     builder.add_edge("synthesizer", END)
 
     return builder.compile(checkpointer=checkpointer)
