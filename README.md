@@ -83,3 +83,64 @@ snackstack/
 |-- README.md
 
 ```
+
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+    START([START]) --> ORCH[orchestrator]
+
+    ORCH -->|Command + Send| MENU[menu_agent]
+    ORCH -->|Command + Send| ORDER[order_agent]
+
+    MENU --> MENU_SUB[menu_subgraph]
+    MENU_SUB --> MENU_MODEL[menu_model]
+    MENU_MODEL -->|tool call| MENU_TOOL[menu_tool]
+    MENU_TOOL --> MENU_MODEL
+    MENU_MODEL -->|final answer| MENU_END[menu subgraph END]
+    MENU_END --> MENU_RETURN[menu_response]
+
+    ORDER --> ORDER_SUB[order_subgraph]
+    ORDER_SUB --> ORDER_MODEL[order_model]
+    ORDER_MODEL -->|tool call| ORDER_TOOL[order_tools]
+    ORDER_TOOL --> ORDER_MODEL
+    ORDER_MODEL -->|missing order id/email| HITL[interrupt]
+    HITL --> ORDER_MODEL
+    ORDER_MODEL -->|final answer| ORDER_END[order subgraph END]
+    ORDER_END --> ORDER_RETURN[order_response]
+
+    MENU_RETURN --> SYNTH[synthesizer]
+    ORDER_RETURN --> SYNTH
+
+    SYNTH --> FINAL[final_answer]
+    FINAL --> END([END])
+```
+
+## 6. Flow Diagram
+
+
+```mermaid
+flowchart TD
+    A[User Query] --> B[Orchestrator]
+
+    B -->|menu task| C[Menu Agent]
+    B -->|order task| D[Order Agent]
+
+    C --> C1[Menu Subgraph]
+    C1 --> C2[Menu Model]
+    C2 -->|calls| C3[menu_tool / Chroma]
+    C3 --> C2
+    C2 --> C4[Menu Response]
+
+    D --> D1[Order Subgraph]
+    D1 --> D2[Order Model]
+    D2 -->|calls| D3[search_order_id / search_order_email]
+    D3 --> D2
+    D2 -->|missing info| D4[Human Interrupt]
+    D4 --> D2
+    D2 --> D5[Order Response]
+
+    C4 --> E[Synthesizer]
+    D5 --> E
+    E --> F[Final Answer]
+```
