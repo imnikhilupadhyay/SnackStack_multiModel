@@ -121,26 +121,37 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[User Query] --> B[Orchestrator]
+    A[User Query] --> B[main.py / SnackStack.query]
+    B --> C[main_graph.invoke with thread_id]
+    C --> D[orchestrator]
 
-    B -->|menu task| C[Menu Agent]
-    B -->|order task| D[Order Agent]
+    D -->|Send menu task| M[menu_agent]
+    D -->|Send order task| O[order_agent]
 
-    C --> C1[Menu Subgraph]
-    C1 --> C2[Menu Model]
-    C2 -->|calls| C3[menu_tool / Chroma]
-    C3 --> C2
-    C2 --> C4[Menu Response]
+    M --> M1[menu_subgraph.invoke]
+    M1 --> M2[menu_model]
+    M2 -->|tool call| M3[menu_tool / Chroma]
+    M3 --> M2
+    M2 -->|final menu answer| M4[menu_response]
+    M4 --> S[synthesizer]
 
-    D --> D1[Order Subgraph]
-    D1 --> D2[Order Model]
-    D2 -->|calls| D3[search_order_id / search_order_email]
-    D3 --> D2
-    D2 -->|missing info| D4[Human Interrupt]
-    D4 --> D2
-    D2 --> D5[Order Response]
+    O --> O1[order_subgraph.invoke with subgraph thread_id]
+    O1 --> O2[order_model]
 
-    C4 --> E[Synthesizer]
-    D5 --> E
-    E --> F[Final Answer]
+    O2 -->|has order id/email| O3[order_tools]
+    O3 --> O2
+    O2 -->|final order answer| O4[order_response]
+    O4 --> S
+
+    O2 -->|missing order id/email| I1[order_subgraph interrupt]
+    I1 --> O5[order_agent catches subgraph interrupt]
+    O5 --> I2[order_agent raises main graph interrupt]
+    I2 --> UI[main.py asks user via text/voice]
+    UI --> R1[main_graph.invoke Command resume]
+    R1 --> O6[order_agent resumes]
+    O6 --> R2[order_subgraph.invoke Command resume]
+    R2 --> O2
+
+    S --> F[final_answer]
+    F --> Z[END]
 ```
