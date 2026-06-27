@@ -98,7 +98,7 @@ flowchart TD
     MENU_MODEL -->|tool call| MENU_TOOL[menu_tool]
     MENU_TOOL --> MENU_MODEL
     MENU_MODEL -->|final answer| MENU_END[menu subgraph END]
-    MENU_END --> MENU_RETURN[menu_response]
+    MENU_END --> MENU_RETURN[menu_agent_response]
 
     ORDER --> ORDER_SUB[order_subgraph]
     ORDER_SUB --> ORDER_MODEL[order_model]
@@ -107,7 +107,7 @@ flowchart TD
     ORDER_MODEL -->|missing order id/email| HITL[interrupt]
     HITL --> ORDER_MODEL
     ORDER_MODEL -->|final answer| ORDER_END[order subgraph END]
-    ORDER_END --> ORDER_RETURN[order_response]
+    ORDER_END --> ORDER_RETURN[order_agent_response]
 
     MENU_RETURN --> SYNTH[synthesizer]
     ORDER_RETURN --> SYNTH
